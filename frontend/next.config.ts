@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // Enable standalone output for Docker deployment
   output: 'standalone',
 
+  // Empty Turbopack config to silence Turbopack error
+  turbopack: {},
+
   // Image optimization
   images: {
     remotePatterns: [
