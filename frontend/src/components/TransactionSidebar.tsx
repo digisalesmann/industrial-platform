@@ -46,7 +46,7 @@ export default function TransactionSidebar({ isOpen, onClose, nft, onFinalize }:
   const estimatedGasUsd = ethPrice ? (estimatedGasEth * ethPrice).toFixed(2) : '--';
 
   // Calculate NFT price in USD
-  const nftPriceUsd = nft && ethPrice ? (parseFloat(nft.price) * ethPrice).toFixed(2) : '--';
+  const nftPriceUsd = nft && ethPrice ? (parseFloat(nft.price ?? '0') * ethPrice).toFixed(2) : '--';
 
   // Format gas price
   const gasPriceDisplay = gasPrice ? `${gasPrice} Gwei` : loading ? 'Loading...' : '--';
