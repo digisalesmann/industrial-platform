@@ -84,8 +84,8 @@ export default function WalletSidebar({ isOpen, onClose }: { isOpen: boolean, on
                         <p className="text-[9px] text-zinc-600 uppercase font-bold tracking-widest">Gas Used (7 Days)</p>
                         <span className="text-[9px] font-mono text-zinc-500">Avg: 38 Gwei</span>
                     </div>
-                    <div className="h-24 w-full bg-zinc-900/30 border border-white/5 overflow-hidden">
-                        <ResponsiveContainer width="100%" height="100%">
+                    <div className="w-full min-h-[96px] h-24 bg-zinc-900/30 border border-white/5 overflow-hidden" style={{ height: 120, minHeight: 96 }}>
+                        <ResponsiveContainer width="100%" height={120} minWidth={0} minHeight={96}>
                             <AreaChart data={gasHistory}>
                                 <Area type="monotone" dataKey="gas" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={1} />
                             </AreaChart>

@@ -6,6 +6,7 @@ import { connectDB } from './lib/db';
 import authRoutes from './routes/auth';
 import assetRoutes from './routes/assets';
 import userRoutes from './routes/users';
+import collectionRoutes from './routes/collections';
 
 // Load environment variables
 dotenv.config();
@@ -33,6 +34,7 @@ app.get('/health', (_req, res) => res.json({
 app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/collections', collectionRoutes);
 
 // Start server after DB connection
 connectDB()

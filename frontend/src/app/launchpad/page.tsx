@@ -4,15 +4,43 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import { assets } from '@/lib/api';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useSignMessage } from 'wagmi';
+
+// Wallet/account state must be inside the component to use hooks
+
 
 export default function VisualDiscover() {
+    const { address, isConnected } = useAccount();
+    const { signMessageAsync } = useSignMessage();
+    const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+    const [txMessage, setTxMessage] = useState<string | null>(null);
+
     const [activeCategory, setActiveCategory] = useState('All');
     const [now, setNow] = useState(new Date());
+    const [auctionItems, setAuctionItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const interval = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        assets.getGallery({ type: activeCategory })
+            .then((data) => {
+                setAuctionItems(data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setError(err.message || 'Failed to load auctions');
+                setLoading(false);
+            });
+    }, [activeCategory]);
 
     const featuredDrop = {
         name: "Void Architects",
@@ -30,24 +58,7 @@ export default function VisualDiscover() {
         { id: 4, name: "Silicon Soul", floor: "0.1 ETH", vol: "45 ETH", change: "+5%", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=200&fit=crop", creator: "@siliconsoul" },
     ];
 
-    // Expanded auction items for all categories
-    const auctionItems = [
-        // Art
-        { id: 201, name: "Dreamscape", price: "2.00 ETH", highBid: "1.50 ETH", category: "Art", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop", creator: "@artdreamer" },
-        { id: 202, name: "Color Burst", price: "1.10 ETH", highBid: "0.90 ETH", category: "Art", image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&h=800&fit=crop", creator: "@colorburst" },
-        // Gaming
-        { id: 301, name: "Pixel Hero", price: "0.80 ETH", highBid: "0.60 ETH", category: "Gaming", image: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600&h=800&fit=crop", creator: "@pixelhero" },
-        { id: 302, name: "Dragon Quest", price: "1.50 ETH", highBid: "1.20 ETH", category: "Gaming", image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&h=800&fit=crop", creator: "@dragonquest" },
-        // Industrial
-        { id: 401, name: "Steel Works", price: "2.20 ETH", highBid: "1.80 ETH", category: "Industrial", image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600&h=800&fit=crop", creator: "@steelworks" },
-        { id: 402, name: "Factory Line", price: "1.75 ETH", highBid: "1.30 ETH", category: "Industrial", image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&h=800&fit=crop", creator: "@factoryline" },
-        // Cyber
-        { id: 501, name: "Neon Runner", price: "1.60 ETH", highBid: "1.10 ETH", category: "Cyber", image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?w=600&h=800&fit=crop", creator: "@neonrunner" },
-        { id: 502, name: "Circuit Breaker", price: "1.30 ETH", highBid: "1.00 ETH", category: "Cyber", image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600&h=800&fit=crop", creator: "@circuitbreaker" },
-        // All (Void Units)
-        { id: 100, name: "Void Unit #100", price: "1.25 ETH", highBid: "0.88 ETH", category: "Industrial", image: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&h=800&fit=crop&sig=0", creator: "@voidlabs" },
-        { id: 101, name: "Void Unit #101", price: "1.25 ETH", highBid: "0.88 ETH", category: "Cyber", image: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&h=800&fit=crop&sig=1", creator: "@cyberartist" },
-    ];
+    // auctionItems now comes from API
 
     // ...existing code... (expanded auctionItems is already declared below)
 
@@ -57,6 +68,54 @@ export default function VisualDiscover() {
         const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
         const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
         return `${h}:${m}:${s}`;
+    }
+
+    // Mint Now logic (example: call backend or contract)
+    async function handleMint() {
+        if (!isConnected) {
+            setTxStatus('error');
+            setTxMessage('Connect your wallet to mint.');
+            return;
+        }
+        setTxStatus('pending');
+        setTxMessage('Minting NFT...');
+        try {
+            const message = `Mint NFT at ${new Date().toISOString()}`;
+            const signature = await signMessageAsync({ message });
+            // TODO: Call backend mint endpoint with address and signature
+            // await fetch('/api/mint', { method: 'POST', body: JSON.stringify({ address, signature }) });
+            setTxStatus('success');
+            setTxMessage('Mint successful!');
+            setTimeout(() => setTxStatus('idle'), 4000);
+        } catch (err: any) {
+            setTxStatus('error');
+            setTxMessage(err.message || 'Mint failed.');
+            setTimeout(() => setTxStatus('idle'), 4000);
+        }
+    }
+
+    // Place Bid logic (example: call backend or contract)
+    async function handleBid(item: any) {
+        if (!isConnected) {
+            setTxStatus('error');
+            setTxMessage('Connect your wallet to place a bid.');
+            return;
+        }
+        setTxStatus('pending');
+        setTxMessage(`Placing bid for ${item.name}...`);
+        try {
+            const message = `Bid on ${item.name} at ${new Date().toISOString()}`;
+            const signature = await signMessageAsync({ message });
+            // TODO: Call backend bid endpoint with address, item, and signature
+            // await fetch('/api/bid', { method: 'POST', body: JSON.stringify({ address, itemId: item.id, signature }) });
+            setTxStatus('success');
+            setTxMessage('Bid placed successfully!');
+            setTimeout(() => setTxStatus('idle'), 4000);
+        } catch (err: any) {
+            setTxStatus('error');
+            setTxMessage(err.message || 'Bid failed.');
+            setTimeout(() => setTxStatus('idle'), 4000);
+        }
     }
 
     return (
@@ -93,12 +152,19 @@ export default function VisualDiscover() {
                             <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] font-bold">Origin: {featuredDrop.creator}</span>
                         </div>
                         <h2 className="text-6xl sm:text-7xl md:text-9xl font-black uppercase tracking-tighter leading-[0.8] mb-4">
-                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
+                            <span className="block text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
                                 {featuredDrop.name}
-                            </h2>
+                            </span>
                         </h2>
                         <div className="flex flex-wrap gap-4 mt-8">
-                            <Link href="/mint" className="px-10 py-5 bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all text-center">Mint Now</Link>
+                            <button
+                                className="px-10 py-5 bg-white text-black text-[11px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all text-center"
+                                onClick={handleMint}
+                                disabled={txStatus === 'pending'}
+                                aria-busy={txStatus === 'pending'}
+                            >
+                                {txStatus === 'pending' ? 'Minting...' : 'Mint Now'}
+                            </button>
                             <Link href="/collection/void-architects" className="px-10 py-5 bg-black/50 backdrop-blur-md border border-white/10 text-white text-[11px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all text-center">Details</Link>
                         </div>
                     </div>
@@ -176,7 +242,12 @@ export default function VisualDiscover() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-                        {auctionItems.filter(item => activeCategory === 'All' || item.category === activeCategory).map((item) => (
+                        {loading && <div className="col-span-full text-center py-12 text-zinc-500">Loading auctions...</div>}
+                        {error && <div className="col-span-full text-center py-12 text-red-500">{error}</div>}
+                        {!loading && !error && auctionItems.length === 0 && (
+                            <div className="col-span-full text-center py-12 text-zinc-500">No auctions found.</div>
+                        )}
+                        {!loading && !error && auctionItems.map((item) => (
                             <motion.div
                                 key={item.id}
                                 initial={{ opacity: 0 }}
@@ -191,25 +262,44 @@ export default function VisualDiscover() {
                                         </span>
                                     </div>
                                     <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                                        <button className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
-                                            Place Bid
+                                        <button
+                                            className="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all"
+                                            onClick={() => handleBid(item)}
+                                            disabled={txStatus === 'pending'}
+                                            aria-busy={txStatus === 'pending'}
+                                        >
+                                            {txStatus === 'pending' ? 'Processing...' : 'Place Bid'}
                                         </button>
+                                    </div>
+                                    {/* Wallet connect and transaction feedback (moved outside grid for accessibility) */}
+                                    {/* Wallet connect and transaction feedback (global, not per item) */}
+                                    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+                                        <ConnectButton />
+                                        {txStatus !== 'idle' && (
+                                            <div
+                                                role="status"
+                                                aria-live="polite"
+                                                className={`px-4 py-2 rounded shadow-lg text-xs font-bold ${txStatus === 'success' ? 'bg-emerald-600 text-white' : txStatus === 'error' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}`}
+                                            >
+                                                {txMessage}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="p-6 space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="max-w-[70%]">
                                             <h4 className="text-xs font-black uppercase text-white truncate mb-1">{item.name}</h4>
-                                            <p className="text-[9px] text-zinc-600 font-bold uppercase">{item.creator}</p>
+                                            <p className="text-[9px] text-zinc-600 font-bold uppercase">{item.creator || 'Unknown'}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[8px] text-zinc-600 uppercase font-black mb-1">List</p>
-                                            <p className="text-xs font-mono font-bold text-blue-500">{item.price}</p>
+                                            <p className="text-xs font-mono font-bold text-blue-500">{item.value || item.price}</p>
                                         </div>
                                     </div>
                                     <div className="pt-4 border-t border-white/5 flex justify-between items-center">
                                         <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Highest Bid</span>
-                                        <span className="text-[11px] font-mono font-bold text-zinc-300">{item.highBid}</span>
+                                        <span className="text-[11px] font-mono font-bold text-zinc-300">{item.highBid || '-'}</span>
                                     </div>
                                 </div>
                             </motion.div>

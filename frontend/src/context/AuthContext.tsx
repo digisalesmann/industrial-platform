@@ -41,12 +41,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loadUser();
     }, []);
 
+
     // Auto-logout if wallet disconnects
     useEffect(() => {
         if (!isConnected && user) {
             logout();
         }
     }, [isConnected]);
+
+    // Auto-authenticate whenever wallet is connected and not authenticated
+    useEffect(() => {
+        if (isConnected && address && !user) {
+            authenticateWallet().catch(() => { });
+        }
+    }, [isConnected, address, !!user]);
 
     const authenticateWallet = async () => {
         if (!address) throw new Error('Wallet not connected');

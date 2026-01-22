@@ -1,3 +1,7 @@
+// Collections API
+export const collections = {
+    getAll: () => apiRequest('/api/collections'),
+};
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // Helper to get auth token from localStorage
@@ -74,22 +78,32 @@ export const auth = {
 // User API
 export const users = {
     getProfile: () => apiRequest('/api/users/me'),
+    updateProfile: (data: { display_name?: string; username?: string; bio?: string }) =>
+        apiRequest('/api/users/me', {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        }),
 };
 
 // Assets API
 export const assets = {
     getAll: () => apiRequest('/api/assets'),
-
-    getGallery: (params?: { type?: string; rarity?: string; search?: string; limit?: number }) => {
+    getMine: () => apiRequest('/api/assets/mine'),
+    listAsset: (id: string, price: string) =>
+        apiRequest(`/api/assets/${id}/list`, {
+            method: 'PATCH',
+            body: JSON.stringify({ price }),
+        }),
+    getGallery: (params?: { type?: string; rarity?: string; search?: string; limit?: number; collection_id?: string }) => {
         const searchParams = new URLSearchParams();
         if (params?.type && params.type !== 'All') searchParams.set('type', params.type);
         if (params?.rarity) searchParams.set('rarity', params.rarity);
         if (params?.search) searchParams.set('search', params.search);
         if (params?.limit) searchParams.set('limit', params.limit.toString());
+        if (params?.collection_id) searchParams.set('collection_id', params.collection_id);
         const query = searchParams.toString();
         return apiRequest(`/api/assets/gallery${query ? `?${query}` : ''}`);
     },
-
     create: (data: { name: string; type: string; value: string; rarity?: string; image?: string }) =>
         apiRequest('/api/assets', {
             method: 'POST',
