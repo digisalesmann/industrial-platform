@@ -35,7 +35,7 @@ router.patch('/me', authenticateToken, async (req, res) => {
     // Check for unique username if updating
     if (username) {
         const check = await pool.query('SELECT id FROM users WHERE username = $1 AND id != $2', [username, userId]);
-        if (check.rowCount > 0) {
+        if ((check.rowCount ?? 0) > 0) {
             return res.status(409).json({ message: 'Username already taken' });
         }
     }
