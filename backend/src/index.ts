@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import assetRoutes from './routes/assets';
 import userRoutes from './routes/users';
 import collectionRoutes from './routes/collections';
+import coingeckoRoutes from './routes/coingecko';
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/coingecko', coingeckoRoutes);
 
 // Start server after DB connection
 connectDB()

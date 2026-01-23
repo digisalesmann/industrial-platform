@@ -24,7 +24,7 @@ export default function MarketTicker() {
   useEffect(() => {
     async function fetchPrices() {
       try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,bitcoin,tether,uniswap,apecoin,arbitrum&vs_currencies=usd&include_24hr_change=true');
+        const res = await fetch('/api/coingecko?ids=ethereum,bitcoin,tether,uniswap,apecoin,arbitrum&vs_currencies=usd&include_24hr_change=true');
         const data = await res.json();
         // Helper for delta formatting
         const fmtDelta = (val: number | undefined, fallback: string): string =>

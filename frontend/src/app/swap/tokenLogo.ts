@@ -13,7 +13,7 @@ interface CoinSearchResult {
 export async function getTokenLogoBySymbol(symbol: string): Promise<string | null> {
     if (logoCache[symbol]) return logoCache[symbol];
     // Use CoinGecko search endpoint for more accurate symbol-to-id mapping
-    const searchRes = await fetch(`https://api.coingecko.com/api/v3/search?query=${symbol}`);
+    const searchRes = await fetch(`/api/coingecko/search?query=${symbol}`);
     if (!searchRes.ok) return null;
     const search = await searchRes.json();
     const coin = search.coins.find((c: CoinSearchResult) => c.symbol.toLowerCase() === symbol.toLowerCase());
