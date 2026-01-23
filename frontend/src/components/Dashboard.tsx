@@ -14,7 +14,8 @@ export default function Dashboard() {
       setError(null);
       try {
         // Fetch your own NFTs from backend
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        // Remove trailing slash from API URL to avoid double slashes
+        const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace(/\/$/, '');
         const backendRes = await fetch(`${apiUrl}/api/collections`);
         const backendData = await backendRes.json();
         const backendNFTs = (backendData || []).map((nft: any) => ({
