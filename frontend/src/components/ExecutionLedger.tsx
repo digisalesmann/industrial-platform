@@ -64,7 +64,7 @@ export default function FinalSection() {
                                 <div className="flex items-center gap-2 text-zinc-600 uppercase text-[9px] font-black tracking-widest">
                                     <Cpu size={12} /> System Load
                                 </div>
-                                <p className="text-sm font-mono text-zinc-400">0.042% — Stable</p>
+                                <p className="text-sm font-mono text-zinc-400">Stable</p>
                             </div>
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 text-zinc-600 uppercase text-[9px] font-black tracking-widest">

@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 
 export default function ProtocolHealth() {
     const stats = [
-        { label: "NETWORK_UPTIME", value: "99.98%", detail: "MAINNET_STABLE", color: "text-emerald-500" },
-        { label: "PROTOCOL_TVL", value: "$1.42B", detail: "+2.4%_INFLOW", color: "text-blue-500" },
-        { label: "GAS_ESTIMATE", value: "14 GWEI", detail: "PRIORITY_NORMAL", color: "text-zinc-400" },
-        { label: "ACTIVE_NODES", value: "1,024", detail: "DECENTRALIZED", color: "text-white" }
+        { label: "Network Uptime", value: "99.98%", detail: "Stable", color: "text-emerald-500" },
+        { label: "Total Value", value: "$1.42B", detail: "+2.4% Inflow", color: "text-blue-500" },
+        { label: "Gas Fee", value: "14 Gwei", detail: "Normal", color: "text-zinc-400" },
+        { label: "Active Users", value: "1,024", detail: "Worldwide", color: "text-white" }
     ];
 
     return (
@@ -29,7 +29,7 @@ export default function ProtocolHealth() {
                 {/* Header for context */}
                 <div className="mb-8 flex items-center gap-4">
                     <div className="h-[1px] w-12 bg-blue-600/50" />
-                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.5em]">System_Telemetry</p>
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.5em]">System Health</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden shadow-2xl shadow-black">
@@ -50,7 +50,7 @@ export default function ProtocolHealth() {
                             </p>
 
                             <div className="flex items-baseline gap-3 mb-6">
-                                <p className={`text-3xl sm:text-4xl font-black tracking-tighter not-italic ${stat.color}`}>
+                                <p className={`text-3xl sm:text-4xl font-black tracking-tighter ${stat.color}`}>
                                     {stat.value}
                                 </p>
                             </div>
